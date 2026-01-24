@@ -21,6 +21,7 @@ export interface WSCallbacks {
   onContainerRemove?: (data: ContainerRemove) => void;
   onEnvInfo?: (env: EnvStruct) => void;
   onProjectName?: (name: string) => void;
+  onProjectStatus?: (status: string) => void;
 }
 
 export interface UseWebSocketOptions {
@@ -58,16 +59,14 @@ export function useWebSocket(
   }, [projectName]);
 
   const connect = useCallback(() => {
-    // 如果已连接，只需要重新订阅项目
+    // projectName 变化时需要重新连接（订阅通过 URL 参数实现）
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      if (projectNameRef.current) {
-        wsRef.current.send(JSON.stringify({ type: 'projectName', data: projectNameRef.current }));
-        console.log('WebSocket re-subscribed to project:', projectNameRef.current);
-      }
-      return;
+      // 关闭旧连接，准备重连
+      wsRef.current.close();
+      wsRef.current = null;
     }
 
-    const wsUrl = getWebSocketUrl();
+    const wsUrl = getWebSocketUrl(projectNameRef.current);
     if (!wsUrl) {
       console.error('[WebSocket] 无法连接：未配置 WebSocket 地址');
       return;
@@ -78,12 +77,7 @@ export function useWebSocket(
 
       ws.onopen = () => {
         setIsConnected(true);
-        console.log('WebSocket connected');
-        // 发送项目订阅消息
-        if (projectNameRef.current) {
-          ws.send(JSON.stringify({ type: 'projectName', data: projectNameRef.current }));
-          console.log('WebSocket subscribed to project:', projectNameRef.current);
-        }
+        console.log('WebSocket connected to:', wsUrl);
       };
 
       ws.onclose = () => {
@@ -141,6 +135,10 @@ export function useWebSocket(
             case 'projectName':
               cbs.onProjectName?.(message.data as string);
               break;
+            case 'ProjectStatus':
+              console.log('[WebSocket] 项目状态更新:', message.data);
+              cbs.onProjectStatus?.(message.data as string);
+              break;
             default:
               console.log('[WebSocket] 未知消息类型:', message.type);
           }
@@ -175,13 +173,15 @@ export function useWebSocket(
     }
   }, [shouldReconnect, enabled, connect]);
 
-  // projectName 变化时重新订阅
+  // projectName 变化时重新连接（订阅通过 URL 参数实现）
   useEffect(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN && projectName) {
-      wsRef.current.send(JSON.stringify({ type: 'projectName', data: projectName }));
-      console.log('WebSocket subscribed to project:', projectName);
+    if (enabled && projectName && wsRef.current) {
+      // 关闭旧连接并通过状态触发重连
+      wsRef.current.close();
+      wsRef.current = null;
+      setShouldReconnect((prev) => prev + 1);
     }
-  }, [projectName]);
+  }, [projectName, enabled]);
 
   useEffect(() => {
     if (enabled) {

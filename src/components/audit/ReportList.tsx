@@ -75,8 +75,7 @@ export function ReportList({ projectName, reports }: ReportListProps) {
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0 overflow-hidden max-h-[200px]">
-        <ScrollArea className="h-full">
+      <CardContent className="p-0 max-h-[400px] overflow-y-auto">
           <div className="p-4 pt-0 space-y-2">
             {reportEntries.length === 0 ? (
               <div className="text-muted-foreground text-sm text-center py-4">
@@ -157,7 +156,6 @@ export function ReportList({ projectName, reports }: ReportListProps) {
               ))
             )}
           </div>
-        </ScrollArea>
       </CardContent>
 
       {selectedReport && (

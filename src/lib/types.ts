@@ -79,7 +79,8 @@ export type WSMessageType =
   | 'ContainerAdd'
   | 'ContainerRemove'
   | 'EnvInfo'
-  | 'projectName';
+  | 'projectName'
+  | 'ProjectStatus';
 
 // WebSocket 消息结构
 export interface WSMessage {

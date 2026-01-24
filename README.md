@@ -1,3 +1,5 @@
+
+
 # AIxVuln - AI 代码安全审计平台
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -19,11 +21,27 @@ AI 驱动的代码安全审计平台前端。用户上传源代码压缩包，�
 
 ## 📸 截图预览
 
-![项目列表](README.assets/image-20260124145348984.png)
+- 首页
 
-![项目详情](README.assets/image-20260124145437670.png)
+  ![image-20260124195516171](./README.assets/image-20260124195516171.png)
 
-![漏洞分析](README.assets/image-20260124145529017.png)
+- 项目详情
+
+  ![image-20260124195502477](./README.assets/image-20260124195502477.png)
+
+- 漏洞报告列表
+
+  ![image-20260124195528933](./README.assets/image-20260124195528933.png)
+
+- 在线预览报告
+
+  ![image-20260124195132766](./README.assets/image-20260124195132766.png)
+
+- 自动编写 POC 并验证漏洞真实性
+
+  ![image-20260124195314511](./README.assets/image-20260124195314511.png)
+
+  ![image-20260124195340464](./README.assets/image-20260124195340464.png)
 
 ## 🛠️ 技术栈
 

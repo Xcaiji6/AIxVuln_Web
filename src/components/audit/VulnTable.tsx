@@ -203,8 +203,8 @@ export function VulnTable({ vulns, maxHeight = '600px' }: VulnTableProps) {
         className="md:hidden overflow-y-auto rounded-md space-y-2" 
         style={{ maxHeight, height: maxHeight }}
       >
-        {vulns.map((vuln) => (
-          <VulnCard key={vuln.vuln_id} vuln={vuln} />
+        {vulns.map((vuln, index) => (
+          <VulnCard key={`${vuln.vuln_id}-${index}`} vuln={vuln} />
         ))}
       </div>
       
@@ -224,8 +224,8 @@ export function VulnTable({ vulns, maxHeight = '600px' }: VulnTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {vulns.map((vuln) => (
-              <VulnRow key={vuln.vuln_id} vuln={vuln} />
+            {vulns.map((vuln, index) => (
+              <VulnRow key={`${vuln.vuln_id}-${index}`} vuln={vuln} />
             ))}
           </TableBody>
         </Table>

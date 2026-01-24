@@ -65,7 +65,13 @@ export default function ProjectDetailPage() {
         );
       },
       onVulnAdd: (vuln: VulnStruct) => {
-        setVulnList((prev) => [...prev, vuln]);
+        // 防止添加重复的漏洞
+        setVulnList((prev) => {
+          if (prev.some((v) => v.vuln_id === vuln.vuln_id)) {
+            return prev;
+          }
+          return [...prev, vuln];
+        });
       },
       onContainerAdd: (container: ContainerStruct) => {
         setContainerList((prev) => [...prev, container]);
@@ -78,15 +84,20 @@ export default function ProjectDetailPage() {
       onEnvInfo: (env: EnvStruct) => {
         setEnvInfo(env);
       },
+      onProjectStatus: (status: string) => {
+        // 更新项目状态
+        setProject((prev) => prev ? { ...prev, status } : prev);
+      },
     }),
     []
   );
 
   // 只有在项目运行中时才启用 WebSocket
-  const isProjectRunning = project?.status && project.status !== '未运行' && project.status !== '已完成';
+  const isProjectRunning = project?.status === '运行中';
   const { isConnected } = useWebSocket(wsCallbacks, {
     enabled: !!isProjectRunning,
     autoReconnect: !!isProjectRunning,
+    projectName: projectName, // 订阅当前项目的事件
   });
 
   // 加载项目详情
@@ -125,11 +136,13 @@ export default function ProjectDetailPage() {
       const result = await startProject(projectName, 0);
       if (result.success) {
         toast.success('项目开始运行');
+        // 乐观更新状态为运行中
+        setProject((prev) => prev ? { ...prev, status: '运行中' } : prev);
       } else {
         toast.error(result.error || '启动失败');
+        // 启动失败时刷新获取真实状态
+        await loadProject();
       }
-      // 无论成功失败都刷新项目状态，确保按钮状态正确
-      await loadProject();
     } catch {
       toast.error('启动失败');
     } finally {
@@ -147,11 +160,13 @@ export default function ProjectDetailPage() {
       const result = await startProject(projectName, 1);
       if (result.success) {
         toast.success('已启动仅代码分析');
+        // 乐观更新状态为运行中
+        setProject((prev) => prev ? { ...prev, status: '运行中' } : prev);
       } else {
         toast.error(result.error || '启动失败');
+        // 启动失败时刷新获取真实状态
+        await loadProject();
       }
-      // 无论成功失败都刷新项目状态，确保按钮状态正确
-      await loadProject();
     } catch {
       toast.error('启动失败');
     } finally {
@@ -182,7 +197,7 @@ export default function ProjectDetailPage() {
   };
 
   // 统一使用相同的状态判断逻辑
-  const isRunning = project?.status && project.status !== '未运行' && project.status !== '已完成' && project.status !== '运行结束';
+  const isRunning = project?.status === '运行中';
 
   // 未认证时显示白色空白页面
   if (!isAuthenticated) {

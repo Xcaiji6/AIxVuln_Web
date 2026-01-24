@@ -198,11 +198,15 @@ export async function downloadAllReports(projectName: string): Promise<void> {
 }
 
 // WebSocket URL - 直连后端（Next.js 不支持 WebSocket 代理）
-export function getWebSocketUrl(): string {
+// 通过 URL query parameter 订阅特定项目的事件
+export function getWebSocketUrl(projectName?: string): string {
   const wsBase = process.env.NEXT_PUBLIC_WS_BASE;
   if (!wsBase) {
     console.error('[WebSocket] 未配置 NEXT_PUBLIC_WS_BASE 环境变量');
     return '';
+  }
+  if (projectName) {
+    return `${wsBase}/ws?projectName=${encodeURIComponent(projectName)}`;
   }
   return `${wsBase}/ws`;
 }
