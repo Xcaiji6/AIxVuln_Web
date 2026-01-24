@@ -26,18 +26,21 @@ export interface WSCallbacks {
 export interface UseWebSocketOptions {
   enabled?: boolean; // 是否启用连接
   autoReconnect?: boolean; // 是否自动重连
+  projectName?: string; // 订阅的项目名称
 }
 
 export function useWebSocket(
   callbacks: WSCallbacks,
   options: UseWebSocketOptions = {}
 ) {
-  const { enabled = true, autoReconnect = true } = options;
+  const { enabled = true, autoReconnect = true, projectName } = options;
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const callbacksRef = useRef(callbacks);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const shouldReconnectRef = useRef(autoReconnect);
+  const projectNameRef = useRef(projectName);
+  const [shouldReconnect, setShouldReconnect] = useState(0); // 用于触发重连
 
   // 更新 callbacks ref
   useEffect(() => {
@@ -49,8 +52,20 @@ export function useWebSocket(
     shouldReconnectRef.current = autoReconnect;
   }, [autoReconnect]);
 
+  // 更新 projectName ref
+  useEffect(() => {
+    projectNameRef.current = projectName;
+  }, [projectName]);
+
   const connect = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) return;
+    // 如果已连接，只需要重新订阅项目
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      if (projectNameRef.current) {
+        wsRef.current.send(JSON.stringify({ type: 'projectName', data: projectNameRef.current }));
+        console.log('WebSocket re-subscribed to project:', projectNameRef.current);
+      }
+      return;
+    }
 
     const wsUrl = getWebSocketUrl();
     if (!wsUrl) {
@@ -64,15 +79,20 @@ export function useWebSocket(
       ws.onopen = () => {
         setIsConnected(true);
         console.log('WebSocket connected');
+        // 发送项目订阅消息
+        if (projectNameRef.current) {
+          ws.send(JSON.stringify({ type: 'projectName', data: projectNameRef.current }));
+          console.log('WebSocket subscribed to project:', projectNameRef.current);
+        }
       };
 
       ws.onclose = () => {
         setIsConnected(false);
         console.log('WebSocket disconnected');
-        // 自动重连
+        // 自动重连 - 通过状态触发而不是直接调用
         if (shouldReconnectRef.current) {
           reconnectTimeoutRef.current = setTimeout(() => {
-            connect();
+            setShouldReconnect((prev) => prev + 1);
           }, 5000);
         }
       };
@@ -86,35 +106,46 @@ export function useWebSocket(
         try {
           const message: WSMessage = JSON.parse(event.data);
           const cbs = callbacksRef.current;
+          
+          // 调试日志：显示收到的消息
+          console.log('[WebSocket] 收到消息:', message.type, message.data);
 
           switch (message.type) {
             case 'string':
               cbs.onEventLog?.(message.data as string);
               break;
             case 'ReportAdd':
+              console.log('[WebSocket] 报告新增:', message.data);
               cbs.onReportAdd?.(message.data as ReportListStruct);
               break;
             case 'VulnStatus':
+              console.log('[WebSocket] 漏洞状态更新:', message.data);
               cbs.onVulnStatus?.(message.data as VulnStatusUpdate);
               break;
             case 'VulnAdd':
+              console.log('[WebSocket] 漏洞新增:', message.data);
               cbs.onVulnAdd?.(message.data as VulnStruct);
               break;
             case 'ContainerAdd':
+              console.log('[WebSocket] 容器新增:', message.data);
               cbs.onContainerAdd?.(message.data as ContainerStruct);
               break;
             case 'ContainerRemove':
+              console.log('[WebSocket] 容器移除:', message.data);
               cbs.onContainerRemove?.(message.data as ContainerRemove);
               break;
             case 'EnvInfo':
+              console.log('[WebSocket] 环境信息:', message.data);
               cbs.onEnvInfo?.(message.data as EnvStruct);
               break;
             case 'projectName':
               cbs.onProjectName?.(message.data as string);
               break;
+            default:
+              console.log('[WebSocket] 未知消息类型:', message.type);
           }
         } catch (e) {
-          console.error('Failed to parse WebSocket message:', e);
+          console.error('[WebSocket] 解析消息失败:', e, '原始数据:', event.data);
         }
       };
 
@@ -136,6 +167,21 @@ export function useWebSocket(
     }
     setIsConnected(false);
   }, []);
+
+  // 监听重连触发器
+  useEffect(() => {
+    if (shouldReconnect > 0 && enabled) {
+      connect();
+    }
+  }, [shouldReconnect, enabled, connect]);
+
+  // projectName 变化时重新订阅
+  useEffect(() => {
+    if (wsRef.current?.readyState === WebSocket.OPEN && projectName) {
+      wsRef.current.send(JSON.stringify({ type: 'projectName', data: projectName }));
+      console.log('WebSocket subscribed to project:', projectName);
+    }
+  }, [projectName]);
 
   useEffect(() => {
     if (enabled) {

@@ -22,11 +22,12 @@ export default function HomePage() {
     
     try {
       const result = await getProjects();
-      if (result.success && result.result) {
+      if (result.success) {
         setIsAuthenticated(true);
         // 获取每个项目的详情
+        const projectList = result.result || [];
         const projectInfos = await Promise.all(
-          result.result.map(async (name) => {
+          projectList.map(async (name) => {
             const detail = await getProjectDetail(name);
             return {
               name,
@@ -83,8 +84,8 @@ export default function HomePage() {
                 </svg>
               </div>
               <div className="min-w-0">
-                <h1 className="text-lg md:text-xl font-bold text-gradient-cyber truncate">代码审计系统</h1>
-                <p className="text-xs text-muted-foreground hidden sm:block">Code Audit System</p>
+                <h1 className="text-lg md:text-xl font-bold text-gradient-cyber truncate">AIxVuln</h1>
+<p className="text-xs text-muted-foreground hidden sm:block">AI 代码安全审计</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -257,7 +258,7 @@ export default function HomePage() {
               <path d="m9 13 3-3 3 3" />
             </svg>
             <h3 className="text-lg font-medium mb-2">暂无项目</h3>
-            <p className="text-muted-foreground text-sm mb-4">点击上方「新建项目」按钮创建你的第一个代码审计项目</p>
+            <p className="text-muted-foreground text-sm mb-4">点击上方「新建项目」按钮创建你的第一个审计项目</p>
             <UploadDialog onSuccess={loadProjects} />
           </div>
         ) : (
@@ -279,7 +280,7 @@ export default function HomePage() {
       <footer className="border-t border-border/50 mt-auto">
         <div className="container mx-auto px-4 md:px-6 py-3 md:py-4">
           <p className="text-center text-xs text-muted-foreground">
-            Code Audit System © {new Date().getFullYear()} - Powered by AI
+            AIxVuln © {new Date().getFullYear()} - Powered by AI
           </p>
         </div>
       </footer>
