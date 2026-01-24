@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "代码审计系统 - Code Audit System",
+  title: "AIxVuln - AI 代码安全审计",
   description: "AI 驱动的自动化代码安全审计平台",
   icons: {
     icon: "/favicon.ico",

@@ -165,9 +165,9 @@ export function UploadDialog({ onSuccess, children }: UploadDialogProps) {
       </DialogTrigger>
       <DialogContent className="cyber-card border-cyber-cyan/30 sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-gradient-cyber">新建代码审计项目</DialogTitle>
+          <DialogTitle className="text-gradient-cyber">新建审计项目</DialogTitle>
           <DialogDescription className="text-sm">
-            上传源码文件（支持 .zip 或 .tar.gz 格式）开始代码审计
+            上传源码文件（支持 .zip 或 .tar.gz 格式）开始安全审计
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-3 sm:py-4">
