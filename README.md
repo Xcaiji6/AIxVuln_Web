@@ -6,6 +6,8 @@
 
 AI 驱动的代码安全审计平台前端。用户上传源代码压缩包，后端启动 Docker 容器进行漏洞分析，结果通过 WebSocket 实时回传。
 
+> 🔗 **后端仓库**: [AIxVuln](https://github.com/m4xxxxx/AIxVuln)
+
 ## ✨ 功能特性
 
 - 📦 **源码上传** - 支持 `.zip` / `.tar.gz` 格式，最大 500MB
