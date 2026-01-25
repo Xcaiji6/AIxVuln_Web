@@ -82,21 +82,10 @@ export function UploadDialog({ onSuccess, children }: UploadDialogProps) {
     setIsUploading(true);
     setProgress(0);
 
-    // 模拟上传进度
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(progressInterval);
-          return 90;
-        }
-        return prev + 10;
-      });
-    }, 200);
-
     try {
-      const result = await createProject(projectName, file);
-      clearInterval(progressInterval);
-      setProgress(100);
+      const result = await createProject(projectName, file, (percent) => {
+        setProgress(percent);
+      });
 
       if (result.success) {
         toast.success('项目创建成功');
@@ -111,7 +100,6 @@ export function UploadDialog({ onSuccess, children }: UploadDialogProps) {
         toast.error(result.error || '创建失败');
       }
     } catch {
-      clearInterval(progressInterval);
       toast.error('创建失败');
     } finally {
       setIsUploading(false);

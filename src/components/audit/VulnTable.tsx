@@ -50,13 +50,14 @@ function VulnCard({ vuln }: { vuln: VulnStruct }) {
           <ConfidenceBadge confidence={vuln.confidence} />
           <StatusBadge status={vuln.status} />
         </div>
-        <div className="mt-2 font-mono text-xs text-muted-foreground truncate">
-          {vuln.file}
-        </div>
       </button>
       {isOpen && (
         <div className="p-3 pt-0 border-t border-border/30 bg-muted/20">
           <div className="grid grid-cols-1 gap-3 text-sm pt-3">
+            <div className="min-w-0">
+              <div className="text-muted-foreground text-xs mb-1">文件位置</div>
+              <div className="font-mono text-xs text-foreground break-all">{vuln.file || '-'}</div>
+            </div>
             <div className="min-w-0">
               <div className="text-muted-foreground text-xs mb-1">函数/方法</div>
               <div className="font-mono text-xs text-cyber-cyan break-all">{vuln.function_or_method || '-'}</div>
@@ -128,14 +129,16 @@ function VulnRow({ vuln }: { vuln: VulnStruct }) {
         <TableCell>
           <StatusBadge status={vuln.status} />
         </TableCell>
-        <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[120px] lg:max-w-[200px]">
-          {vuln.file}
-        </TableCell>
       </TableRow>
       {isOpen && (
         <TableRow className="bg-card/50 border-b border-border/30">
-          <TableCell colSpan={5} className="p-0 whitespace-normal">
+          <TableCell colSpan={4} className="p-0 whitespace-normal">
             <div className="p-4 space-y-3">
+              {/* 文件位置单独一行显示 */}
+              <div className="min-w-0">
+                <div className="text-muted-foreground text-sm mb-1">文件位置</div>
+                <div className="font-mono text-sm text-foreground break-all">{vuln.file || '-'}</div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 <div className="min-w-0">
                   <div className="text-muted-foreground mb-1">函数/方法</div>
@@ -220,7 +223,6 @@ export function VulnTable({ vulns, maxHeight = '600px' }: VulnTableProps) {
               <TableHead className="text-cyber-cyan w-[100px]">类型</TableHead>
               <TableHead className="text-cyber-cyan w-[80px]">置信度</TableHead>
               <TableHead className="text-cyber-cyan w-[80px]">状态</TableHead>
-              <TableHead className="text-cyber-cyan">文件位置</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

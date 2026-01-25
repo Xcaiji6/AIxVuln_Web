@@ -43,7 +43,7 @@ export function ProjectCard({ name, status = '未运行', vulnCount = 0, onDelet
     }
   };
 
-  const isRunning = status === '运行中';
+  const isRunning = status === '运行中' || status === '正在运行';
 
   return (
     <Card className="cyber-card group animate-fade-in-up">

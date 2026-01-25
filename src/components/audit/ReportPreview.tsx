@@ -33,18 +33,29 @@ export function ReportPreview({
 
   useEffect(() => {
     if (open && reportId) {
-      setLoading(true);
-      setError(null);
-      getReportContent(projectName, reportId)
-        .then((data) => {
-          setContent(data);
-        })
-        .catch((err) => {
-          setError(err.message || '加载报告失败');
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+      let cancelled = false;
+      const fetchContent = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const data = await getReportContent(projectName, reportId);
+          if (!cancelled) {
+            setContent(data);
+          }
+        } catch (err) {
+          if (!cancelled) {
+            setError(err instanceof Error ? err.message : '加载报告失败');
+          }
+        } finally {
+          if (!cancelled) {
+            setLoading(false);
+          }
+        }
+      };
+      fetchContent();
+      return () => {
+        cancelled = true;
+      };
     }
   }, [open, projectName, reportId]);
 

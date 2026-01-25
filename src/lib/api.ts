@@ -66,28 +66,51 @@ export async function getEnvInfo(name: string): Promise<ApiResponse<EnvStruct>> 
 }
 
 // 创建项目 - 使用专用上传端点处理大文件
-export async function createProject(projectName: string, file: File): Promise<ApiResponse<string>> {
-  const formData = new FormData();
-  formData.append('file', file);
+// onProgress: 上传进度回调，参数为 0-100 的百分比
+export function createProject(
+  projectName: string,
+  file: File,
+  onProgress?: (percent: number) => void
+): Promise<ApiResponse<string>> {
+  return new Promise((resolve) => {
+    const formData = new FormData();
+    formData.append('file', file);
 
-  try {
-    // credentials: 'include' 确保浏览器发送 Basic Auth 认证头
-    const response = await fetch(
-      `/api/upload?projectName=${encodeURIComponent(projectName)}`,
-      {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `/api/upload?projectName=${encodeURIComponent(projectName)}`);
+    xhr.withCredentials = true;
+
+    // 监听上传进度
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && onProgress) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        onProgress(percent);
       }
-    );
-    return await response.json();
-  } catch (error) {
-    return {
-      success: false,
-      result: null,
-      error: error instanceof Error ? error.message : '上传失败',
     };
-  }
+
+    xhr.onload = () => {
+      try {
+        const response = JSON.parse(xhr.responseText);
+        resolve(response);
+      } catch {
+        resolve({
+          success: false,
+          result: null,
+          error: '解析响应失败',
+        });
+      }
+    };
+
+    xhr.onerror = () => {
+      resolve({
+        success: false,
+        result: null,
+        error: '网络请求失败',
+      });
+    };
+
+    xhr.send(formData);
+  });
 }
 
 // 运行项目

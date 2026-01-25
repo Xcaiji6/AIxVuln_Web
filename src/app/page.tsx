@@ -169,7 +169,7 @@ export default function HomePage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-cyber-green">
-                  {projects.filter((p) => p.status === '运行中').length}
+                  {projects.filter((p) => p.status === '运行中' || p.status === '正在运行').length}
                 </p>
                 <p className="text-xs text-muted-foreground">运行中</p>
               </div>

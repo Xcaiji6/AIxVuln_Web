@@ -169,7 +169,8 @@ export function useWebSocket(
   // 监听重连触发器
   useEffect(() => {
     if (shouldReconnect > 0 && enabled) {
-      connect();
+      const timer = setTimeout(() => connect(), 0);
+      return () => clearTimeout(timer);
     }
   }, [shouldReconnect, enabled, connect]);
 
@@ -179,14 +180,19 @@ export function useWebSocket(
       // 关闭旧连接并通过状态触发重连
       wsRef.current.close();
       wsRef.current = null;
-      setShouldReconnect((prev) => prev + 1);
+      const timer = setTimeout(() => setShouldReconnect((prev) => prev + 1), 0);
+      return () => clearTimeout(timer);
     }
   }, [projectName, enabled]);
 
   useEffect(() => {
     if (enabled) {
       shouldReconnectRef.current = autoReconnect;
-      connect();
+      const timer = setTimeout(() => connect(), 0);
+      return () => {
+        clearTimeout(timer);
+        disconnect();
+      };
     }
     return () => {
       disconnect();

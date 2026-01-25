@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { ReportPreview } from './ReportPreview';
 import { downloadReport, downloadAllReports } from '@/lib/api';
 import type { ReportListStruct } from '@/lib/types';
