@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '500mb',
     },
+    // Next.js 16: Increase proxy body size limit for large file uploads
+    proxyClientMaxBodySize: '500mb',
   },
   // 注意：已移除 rewrites 配置，改用 /api/proxy/[...path]/route.ts 处理
   // 这样可以在服务端安全地注入认证信息

@@ -43,6 +43,16 @@ AI 驱动的代码安全审计平台前端。用户上传源代码压缩包，�
 
   ![image-20260124195340464](./README.assets/image-20260124195340464.png)
 
+## 📊下个版本
+
+![11b17eb3e01e8985db710920b1254c45](./README.assets/11b17eb3e01e8985db710920b1254c45.png)
+
+![image-20260127090753141](./README.assets/image-20260127090753141.png)
+
+![image-20260127090531696](./README.assets/image-20260127090531696.png)
+
+![image-20260127090552738](./README.assets/image-20260127090552738.png)
+
 ## 🛠️ 技术栈
 
 - **框架**: Next.js 16 (App Router)
@@ -64,7 +74,7 @@ AI 驱动的代码安全审计平台前端。用户上传源代码压缩包，�
 ```bash
 # 克隆仓库
 git clone https://github.com/qqliushiyu/AIxVuln_Web.git
-cd code-audit-system
+cd AIxVuln_Web
 
 # 安装依赖
 npm install

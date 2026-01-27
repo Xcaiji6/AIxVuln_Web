@@ -70,17 +70,22 @@ export async function POST(request: NextRequest) {
     }
 
     // 转发浏览器发送的 Authorization 头
+    // 注意：不要设置 Content-Type，让 fetch 自动处理 multipart/form-data 的 boundary
     const headers: HeadersInit = {};
     const authHeader = request.headers.get('Authorization');
     if (authHeader) {
       headers['Authorization'] = authHeader;
     }
 
+    // 重新构建 FormData 以确保正确传输
+    const newFormData = new FormData();
+    newFormData.append('file', file, file.name);
+
     // Forward form data to backend
     const response = await fetch(url, {
       method: 'POST',
       headers,
-      body: formData,
+      body: newFormData,
     });
 
     const data = await response.text();
@@ -105,9 +110,12 @@ export async function POST(request: NextRequest) {
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error('[Upload Error]', error);
+    console.error('[Upload Error] Full error:', error);
+    console.error('[Upload Error] Error name:', error instanceof Error ? error.name : 'Unknown');
+    console.error('[Upload Error] Error message:', error instanceof Error ? error.message : String(error));
+    console.error('[Upload Error] Stack:', error instanceof Error ? error.stack : 'No stack');
     return NextResponse.json(
-      { success: false, error: '上传失败' },
+      { success: false, error: `上传失败: ${error instanceof Error ? error.message : '未知错误'}` },
       { status: 500 }
     );
   }
